@@ -11,14 +11,21 @@ window.addEventListener('load', (event) => {
 
     if (window.ethereum) {
         console.log("Reached Here :)");
-    }
-    
-    else {
-        // Metamask is not installed
+        const web3 = new Web3(window.ethereum);
+        try {
+            await window.ethereum.enable();
+            return web3
+
+        } catch(error) {
+            console.error('Error:', error);
+            throw error
+        }
+    } else {
         console.error("Metamask is not installed");
     }
-    
 });
+
+
 
 
 
@@ -184,6 +191,7 @@ const countdown = setInterval(function() {
 
     else {
         console.log('ROULETTE')
+        var timeleft = 0;
         SpinRoulette();
     }
     
