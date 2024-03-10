@@ -35,6 +35,7 @@ window.addEventListener('load', async (event) => {
 
 var totalRotation = 0;
 var currentPosition = 0;
+var Locked = false;
 
 var myDictionary = {
     28: 1, 9: 2, 26: 3, 30: 4, 11: 5, 7: 6, 
@@ -133,14 +134,22 @@ async function SpinRoulette() {
                     WinOrLoss.textContent = 'Win';
                     newBalance = newBalance + (2*addedAmount);
                     amountInput.value = ""
+
+                    if (Locked) {
+                        currentBalance.innerHTML = newBalance;
+                        amountInput.disabled = false;
+                    }
+
                     currentBalance.innerHTML = newBalance;
                     amountInput.disabled = false;
+                    Locked = false;
                 }
 
                 else {
                     WinOrLoss.textContent = 'Loss';
                     amountInput.value = ""
                     amountInput.disabled = false;
+                    Locked = false;
                 }
 
             }
@@ -166,6 +175,16 @@ document.getElementById('RedButton').onclick = function(e){
 document.getElementById('BlackButton').onclick = function(e){
     colourOutput.textContent = 'Black';
     colourOutput.style.color = 'Black';
+}
+
+function Confirm() {
+    BlackButton.disabled = true;
+    RedButton.disabled = true;
+    amountInput.disabled = true;
+
+    var Confirm = document.getElementById("ConfirmButton");
+    Confirm.textContent = 'Locked';
+    var Locked = true;
 }
 
 
