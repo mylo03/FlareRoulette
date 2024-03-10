@@ -233,11 +233,11 @@ const countdown = setInterval(function() {
     const startDate = new Date('March 10, 2024 11:13:32');
     const currentDate = new Date();
     const timeElapsedInSeconds = Math.floor((currentDate - startDate) / 1000);
-    const currentSeconds = timeElapsedInSeconds % 40;
+    const currentSeconds = timeElapsedInSeconds % 90;
     var timeleft = 0;
     
     if (currentSeconds != 0){
-        timeleft = 40 - currentSeconds;
+        timeleft = 90 - currentSeconds;
     }
 
     else {
