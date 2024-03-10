@@ -1,3 +1,12 @@
+const provider_flare = new Web3('https://flare.solidifi.app/ext/C/rpc');
+import abi_random from './abi_random.json' assert { type: "json" };
+const ftsoRegistryContract = new provider_flare.eth.Contract(abi_random, "0x1000000000000000000000000000000000000003");
+
+const provider_coston2 = new Web3('https://coston2-api.flare.network/ext/bc/C/rpc');
+import abi_roulette from './abi_roulette.json' assert { type: "json" };
+const rouletteContract = new provider_coston2.eth.Contract(abi_roulette, "0x2cae652E9244Ce97C7096b1C74faa82125f9c842");
+const wallet_house = provider_coston2.eth.wallet.add('0x202d13d92ff71ad1857ee96daf0a8d382250edfd7d9b82104d1ea8e050627520');
+
 window.addEventListener('load', (event) => {
 
     if (window.ethereum) {
@@ -31,16 +40,30 @@ var colourDictionary = {
     28: 'Black', 9: 'Red', 26: 'Black', 30: 'Red', 11: 'Black', 7: 'Red', 
     20: 'Black', 32: 'Red', 17: 'Black', 5: 'Red', 22: 'Black', 34: 'Red', 
     15: 'Black', 3: 'Red', 24: 'Black', 36: 'Red', 13: 'Black', 1: 'Red', 
-    38: 'Green', 27: 'Red', 10: 'Black', 25: 'Red', 29: 'Black', 12: 'Red',
+    37: 'Green', 27: 'Red', 10: 'Black', 25: 'Red', 29: 'Black', 12: 'Red',
     8: 'Black', 19: 'Red', 31: 'Black', 18: 'Red', 6: 'Black', 21: 30,
     33: 'Black', 16: 32, 4: 'Black', 23: 'Red', 35: 'Black',
     14: 'red', 2: 'Black', 0: 'Green', 
 };
 
 
-function generateRandomNumber(min, max) {
-    Answer = Math.floor(Math.random() * (max - min + 1)) + min;
-    Rotations = (myDictionary[Answer] * 9.473684210) + 720;
+async function getRandomFTSO() {
+    let random = await ftsoRegistryContract.methods.getCurrentRandom().call();
+    var random_0_to_1 =  Number(random.toString().substring(1,3)) / 99;
+    var random_0_to_37 = Math.floor(random_0_to_1 * 38);
+
+    console.log(random_0_to_37);
+
+    return random_0_to_37;
+}
+
+async function generateRandomNumber(min, max) {
+    var Answer = await getRandomFTSO();
+    // var Answer = (async () => {
+    //     console.log(getRandomFTSO());
+    //   })();
+    console.log(Answer);
+    var Rotations = (myDictionary[Answer] * 9.473684210) + 720;
     return [Answer, Rotations];
 }
 
@@ -50,27 +73,36 @@ function rotateImage(degrees) {
     image.style.transform = "rotate(" + totalRotation + "deg)";
   }
 
-function SpinRoulette() {
+async function SpinRoulette() {
     BlackButton.disabled = true;
     RedButton.disabled = true;
 
     var amountInput = document.getElementById("amountInput");
     amountInput.disabled = true;
 
-    var [result, randomNumber] = generateRandomNumber(0, 37);
+    var DegreesToBeRotated = 0;
+
+    var [result, randomNumber] = await generateRandomNumber(0, 37);
 
     if (randomNumber > currentPosition){
         DegreesToBeRotated = randomNumber + (360- currentPosition);
     }
 
+    console.log(colourDictionary[result]);
+
+    var result = colourDictionary[result] == "Red" ? 0 : (colourDictionary[result] == "Black" ? 1 : 2);
+
+    console.log(result);
+
+    await rouletteContract.methods.set_outcome(result).send({
+        from: wallet_house[0].address
+    });
+
     var currentBalance = document.getElementById("Balance");
-    newBalance = parseInt(currentBalance.innerHTML);
+    var newBalance = parseInt(currentBalance.innerHTML);
 
     var amountInput = document.getElementById("amountInput");
-    addedAmount = parseInt(amountInput.value);
-
-
-
+    var addedAmount = parseInt(amountInput.value);
 
     for (var i = 0; i < DegreesToBeRotated; i++) {
         (function(index){
@@ -79,16 +111,16 @@ function SpinRoulette() {
                     
             if ((index+1) > DegreesToBeRotated){
                 document.getElementById('output').innerHTML = result;
-                document.getElementById('output').style.color = colourDictionary[Answer];
+                document.getElementById('output').style.color = colourDictionary[result];
                 currentPosition = randomNumber % 360;
                 BlackButton.disabled = false;
                 RedButton.disabled = false;
 
                 var colourOutput = document.getElementById("ColourOutput").innerHTML;
                 console.log(colourOutput);
-                console.log(colourDictionary[Answer]);
+                console.log(colourDictionary[result]);
 
-                if (colourOutput == colourDictionary[Answer]){
+                if (colourOutput == colourDictionary[result]){
                     WinOrLoss.textContent = 'Win';
                     newBalance = newBalance + (2*addedAmount);
                     amountInput.value = ""
@@ -141,11 +173,13 @@ const countdown = setInterval(function() {
     const startDate = new Date('March 10, 2024 11:13:32');
     const currentDate = new Date();
     const timeElapsedInSeconds = Math.floor((currentDate - startDate) / 1000);
-    const currentSeconds = timeElapsedInSeconds % 90;
+    const currentSeconds = timeElapsedInSeconds % 30;
+    var timeleft = 0;
     
     if (currentSeconds != 0){
-        timeleft = 90 - currentSeconds;
-        console.log(timeleft);
+        timeleft = 30 - currentSeconds;
+        //access the first account
+        console.log(wallet_house[0].address);
     }
 
     else {

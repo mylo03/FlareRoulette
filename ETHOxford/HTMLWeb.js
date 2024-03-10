@@ -1,3 +1,8 @@
+const web3 = new Web3();
+import abi from './abi.json' assert { type: "json" };
+
+const provider = new Web3('https://flare.solidifi.app/ext/C/rpc');
+
 window.addEventListener('load', (event) => {
 
     if (window.ethereum) {
@@ -10,9 +15,6 @@ window.addEventListener('load', (event) => {
     }
     
 });
-
-
-
 
 var totalRotation = 0;
 var currentPosition = 0;
@@ -37,10 +39,21 @@ var colourDictionary = {
     14: 'red', 2: 'Black', 0: 'Green', 
 };
 
+async function getRandomFTSO() {
+    const ftsoRegistryContract = new provider.eth.Contract(abi, "0x1000000000000000000000000000000000000003");
+
+    let random = await ftsoRegistryContract.methods.getCurrentRandom().call();
+    var random_0_to_1 =  Number(random.toString().substring(1,3)) / 99;
+    var random_0_to_37 = Math.floor(random_0_to_1 * 38);
+    console.log(random_0_to_37);
+
+    return random_0_to_37;
+}
 
 function generateRandomNumber(min, max) {
-    Answer = Math.floor(Math.random() * (max - min + 1)) + min;
-    Rotations = (myDictionary[Answer] * 9.473684210) + 720;
+    var Answer = getRandomFTSO();
+    console.log(Answer);
+    var Rotations = (myDictionary[Answer] * 9.473684210) + 720;
     return [Answer, Rotations];
 }
 
@@ -141,7 +154,8 @@ const countdown = setInterval(function() {
     const currentDate = new Date();
     const currentSeconds = currentDate.getSeconds();
     var whatSecond = 50;
-    
+    var timeleft = 0;
+
     if (currentSeconds > whatSecond){
         timeleft = 60 - currentSeconds + whatSecond;
         console.log(timeleft);
