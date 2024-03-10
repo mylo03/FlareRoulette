@@ -1,15 +1,21 @@
-window.addEventListener('load', (event) => {
-
+window.addEventListener('load', async (event) => {
     if (window.ethereum) {
         console.log("Reached Here :)");
-    }
-    
-    else {
-        // Metamask is not installed
+        const web3 = new Web3(window.ethereum);
+        try {
+            await window.ethereum.enable();
+            return web3
+
+        } catch(error) {
+            console.error('Error:', error);
+            throw error
+        }
+    } else {
         console.error("Metamask is not installed");
     }
-    
 });
+
+
 
 
 
@@ -31,7 +37,7 @@ var colourDictionary = {
     28: 'Black', 9: 'Red', 26: 'Black', 30: 'Red', 11: 'Black', 7: 'Red', 
     20: 'Black', 32: 'Red', 17: 'Black', 5: 'Red', 22: 'Black', 34: 'Red', 
     15: 'Black', 3: 'Red', 24: 'Black', 36: 'Red', 13: 'Black', 1: 'Red', 
-    38: 'Green', 27: 'Red', 10: 'Black', 25: 'Red', 29: 'Black', 12: 'Red',
+    37: 'Green', 27: 'Red', 10: 'Black', 25: 'Red', 29: 'Black', 12: 'Red',
     8: 'Black', 19: 'Red', 31: 'Black', 18: 'Red', 6: 'Black', 21: 30,
     33: 'Black', 16: 32, 4: 'Black', 23: 'Red', 35: 'Black',
     14: 'red', 2: 'Black', 0: 'Green', 
@@ -39,8 +45,8 @@ var colourDictionary = {
 
 
 function generateRandomNumber(min, max) {
-    Answer = Math.floor(Math.random() * (max - min + 1)) + min;
-    Rotations = (myDictionary[Answer] * 9.473684210) + 720;
+    var Answer = Math.floor(Math.random() * (max - min + 1)) + min;
+    var Rotations = (myDictionary[Answer] * 9.473684210) + 720;
     return [Answer, Rotations];
 }
 
@@ -142,14 +148,15 @@ const countdown = setInterval(function() {
     const currentDate = new Date();
     const timeElapsedInSeconds = Math.floor((currentDate - startDate) / 1000);
     const currentSeconds = timeElapsedInSeconds % 90;
-    
+
     if (currentSeconds != 0){
-        timeleft = 90 - currentSeconds;
+        var timeleft = 90 - currentSeconds;
         console.log(timeleft);
     }
 
     else {
         console.log('ROULETTE')
+        var timeleft = 0;
         SpinRoulette();
     }
     
